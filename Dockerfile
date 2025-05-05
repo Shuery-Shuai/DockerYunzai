@@ -2,7 +2,6 @@ FROM node:lts-slim
 
 LABEL maintainer="2463253700@qq.com"
 LABEL description="Yunzai Bot Docker Image"
-LABEL version="1.0.0"
 ARG PNPM_VERSION=latest
 
 ENV TZ=Asia/Shanghai
