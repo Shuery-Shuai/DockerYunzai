@@ -1,6 +1,11 @@
 # 使用轻量的 LTS 镜像
 FROM node:lts-slim
 
+# 元数据
+LABEL maintainer="2463253700@qq.com"
+LABEL description="Yunzai Bot Docker Image"
+LABEL version="1.0.0"
+
 # 启用 corepack
 RUN corepack enable
 
