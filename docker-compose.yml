@@ -1,8 +1,11 @@
 version: "3.8"
 
 services:
-  yunzai:
-    build: .
+    yunzai:
+      build:
+        context: .
+        args:
+          PNPM_VERSION: latest
     deploy:
       resources:
         limits:
@@ -11,16 +14,14 @@ services:
         reservations:
           memory: 512M
     volumes:
-      - yunzai_data:/opt/yunzai # 改用命名卷
+      - yunzai_data:/opt/yunzai
     environment:
       - PNPM_HOME=/opt/yunzai/.pnpm
       - PNPM_STORE_PATH=/opt/yunzai/.pnpm/store
     working_dir: /opt/yunzai
     healthcheck:
       test: ["CMD", "pnpm", "--version"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      interval: 1m
     logging:
       driver: "json-file"
       options:
@@ -28,9 +29,9 @@ services:
         max-file: "3"
 
 volumes:
-  yunzai_data: # 声明持久化存储卷
+  yunzai_data:
+    name: yunzai_data
     driver: local
     driver_opts:
       o: bind
       type: none
-      # device: /your/custom/path # 自定义主机路径
