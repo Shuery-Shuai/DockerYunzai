@@ -1,4 +1,5 @@
-FROM node:lts
+# 使用轻量的 LTS 镜像
+FROM node:lts-slim
 
 # 启用 corepack
 RUN corepack enable
