@@ -37,13 +37,17 @@ services:
         max-file: "3"
   redis:
     image: redis:alpine
-    command: redis-server --requirepass your_secure_password --save 60 1
+    environment:
+      REDIS_PASSWORD: /run/secrets/redis_password
+    command: redis-server --requirepass $$REDIS_PASSWORD --save 60 1
     volumes:
       - redis_data:/data
+    secrets:
+      - redis_password
     networks:
       - yunzai_network
     healthcheck:
-      test: [ "CMD", "redis-cli", "-a", "your_secure_password", "ping" ]
+      test: [ "CMD", "redis-cli", "-a", "$$REDIS_PASSWORD", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -55,6 +59,10 @@ volumes:
   redis_data:
     name: redis_data
     driver: local
+
+secrets:
+  redis_password:
+    external: true
 
 networks:
   yunzai_network:
