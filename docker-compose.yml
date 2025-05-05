@@ -9,6 +9,11 @@ services:
       - PNPM_HOME=/opt/yunzai/.pnpm
       - PNPM_STORE_PATH=/opt/yunzai/.pnpm/store
     working_dir: /opt/yunzai
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   yunzai_data: # 声明持久化存储卷
