@@ -3,6 +3,13 @@ version: "3.8"
 services:
   yunzai:
     build: .
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2G
+        reservations:
+          memory: 512M
     volumes:
       - yunzai_data:/opt/yunzai # 改用命名卷
     environment:
