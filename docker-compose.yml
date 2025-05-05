@@ -1,11 +1,19 @@
-version: '3.8'
+version: "3.8"
 
 services:
   yunzai:
     build: .
     volumes:
-      - /etc/yunzai:/opt/yunzai
+      - yunzai_data:/opt/yunzai # 改用命名卷
     environment:
       - PNPM_HOME=/opt/yunzai/.pnpm
       - PNPM_STORE_PATH=/opt/yunzai/.pnpm/store
     working_dir: /opt/yunzai
+
+volumes:
+  yunzai_data: # 声明持久化存储卷
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      # device: /your/custom/path # 自定义主机路径
