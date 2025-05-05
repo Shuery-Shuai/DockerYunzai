@@ -14,6 +14,11 @@ RUN mkdir -p /opt/yunzai &&
   chown -R node:node /opt/yunzai && \
   chmod 750 /opt/yunzai
 
+# 自动修复权限
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
 # 切换非root用户（推荐）
 USER node
 
