@@ -1,37 +1,61 @@
-version: "3.8"
-
 services:
-    yunzai:
-      build:
-        context: .
-        args:
-          PNPM_VERSION: latest
+  yunzai:
+    build:
+      context: .
+      args:
+        PNPM_VERSION: latest
     deploy:
       resources:
         limits:
-          cpus: '1.5'
+          cpus: "1.5"
           memory: 2G
         reservations:
           memory: 512M
-    volumes:
-      - yunzai_data:/opt/yunzai
     environment:
+      - PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage
+      - FFMPEG_PATH=/usr/bin/ffmpeg
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=your_secure_password
       - PNPM_HOME=/opt/yunzai/.pnpm
       - PNPM_STORE_PATH=/opt/yunzai/.pnpm/store
     working_dir: /opt/yunzai
+    volumes:
+      - yunzai_data:/opt/yunzai
+    networks:
+      - yunzai_network
+    depends_on:
+      redis:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "pnpm", "--version"]
+      test: [ "CMD", "pnpm", "--version" ]
       interval: 1m
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+  redis:
+    image: redis:alpine
+    command: redis-server --requirepass your_secure_password --save 60 1
+    volumes:
+      - redis_data:/data
+    networks:
+      - yunzai_network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "your_secure_password", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   yunzai_data:
     name: yunzai_data
     driver: local
-    driver_opts:
-      o: bind
-      type: none
+  redis_data:
+    name: redis_data
+    driver: local
+
+networks:
+  yunzai_network:
+    driver: bridge
