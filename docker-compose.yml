@@ -9,6 +9,11 @@ services:
       - PNPM_HOME=/opt/yunzai/.pnpm
       - PNPM_STORE_PATH=/opt/yunzai/.pnpm/store
     working_dir: /opt/yunzai
+    healthcheck:
+      test: ["CMD", "pnpm", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     logging:
       driver: "json-file"
       options:
