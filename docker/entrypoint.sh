@@ -13,6 +13,28 @@ wait_for_redis() {
     chown -R node:node /opt/yunzai
   fi
 
+  if [ ! -d "/opt/yunzai/.git" ]; then
+    echo "Cloning Yunzai repository..."
+    git clone ${YUNZAI_REPO:-https://github.com/yoimiya-kokomi/Miao-Yunzai.git} . \
+      --depth=1
+  fi
+
+  if [ -n "$PLUGIN_REPOS" ]; then
+    mkdir -p plugins
+    echo "$PLUGIN_REPOS" | tr ',' '\n' | while read repo; do
+      plugin_name=$(basename $repo .git)
+      if [ ! -d "plugins/$plugin_name" ]; then
+        echo "Installing plugin: $plugin_name"
+        git clone $repo "plugins/$plugin_name" \
+          --depth=1
+      fi
+    done
+  fi
+
+  if [ ! -d "node_modules" ]; then
+    pnpm install -P
+  fi
+
   wait_for_redis
 }
 

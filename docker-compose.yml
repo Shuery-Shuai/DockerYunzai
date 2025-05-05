@@ -12,6 +12,8 @@ services:
         reservations:
           memory: 512M
     environment:
+      - YUNZAI_REPO=https://github.com/yoimiya-kokomi/Miao-Yunzai.git
+      - PLUGIN_REPOS=https://github.com/yoimiya-kokomi/miao-plugin.git
       - PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage
       - FFMPEG_PATH=/usr/bin/ffmpeg
       - REDIS_HOST=redis
