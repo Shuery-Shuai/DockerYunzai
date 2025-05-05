@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  yunzai:
+    build: .
+    volumes:
+      - /etc/yunzai:/opt/yunzai
+    environment:
+      - PNPM_HOME=/opt/yunzai/.pnpm
+      - PNPM_STORE_PATH=/opt/yunzai/.pnpm/store
+    working_dir: /opt/yunzai
