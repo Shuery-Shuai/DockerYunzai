@@ -11,7 +11,8 @@ RUN corepack prepare pnpm@latest --activate
 
 # 创建工作目录并设置权限
 RUN mkdir -p /opt/yunzai &&
-  chown -R node:node /opt/yunzai
+  chown -R node:node /opt/yunzai && \
+  chmod 750 /opt/yunzai
 
 # 切换非root用户（推荐）
 USER node
