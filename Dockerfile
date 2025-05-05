@@ -6,6 +6,10 @@ LABEL maintainer="2463253700@qq.com"
 LABEL description="Yunzai Bot Docker Image"
 LABEL version="1.0.0"
 
+# 系统时区
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
+
 # 启用 corepack
 RUN corepack enable
 
