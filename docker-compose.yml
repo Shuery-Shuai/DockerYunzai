@@ -18,12 +18,14 @@ services:
       - FFMPEG_PATH=/usr/bin/ffmpeg
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - REDIS_PASSWORD=your_secure_password
+      - REDIS_PASSWORD=/run/secrets/redis_password
       - PNPM_HOME=/opt/yunzai/.pnpm
       - PNPM_STORE_PATH=/opt/yunzai/.pnpm/store
     working_dir: /opt/yunzai
     volumes:
       - yunzai_data:/opt/yunzai
+    secrets:
+      - redis_password
     networks:
       - yunzai_network
     depends_on:
