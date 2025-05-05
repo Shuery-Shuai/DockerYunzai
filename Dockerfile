@@ -7,9 +7,6 @@ ARG PNPM_VERSION=latest
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
 
-ENV PNPM_HOME=/opt/yunzai/.pnpm
-ENV PNPM_STORE_PATH=/opt/yunzai/.pnpm/store
-
 WORKDIR /opt/yunzai
 
 RUN corepack enable
