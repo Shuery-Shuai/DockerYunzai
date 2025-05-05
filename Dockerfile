@@ -5,6 +5,7 @@ FROM node:lts-slim
 LABEL maintainer="2463253700@qq.com"
 LABEL description="Yunzai Bot Docker Image"
 LABEL version="1.0.0"
+ARG PNPM_VERSION=latest
 
 # 系统时区
 ENV TZ=Asia/Shanghai
@@ -16,7 +17,7 @@ RUN corepack enable
 # 安装最新 pnpm 并设置存储路径
 ENV PNPM_HOME=/opt/yunzai/.pnpm
 ENV PNPM_STORE_PATH=/opt/yunzai/.pnpm/store
-RUN corepack prepare pnpm@latest --activate
+RUN corepack prepare pnpm@${PNPM_VERSION} --activate
 
 # 创建工作目录并设置权限
 RUN mkdir -p /opt/yunzai &&
