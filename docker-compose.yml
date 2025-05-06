@@ -21,6 +21,8 @@ services:
       - REDIS_PASSWORD=/run/secrets/redis_password
       - PNPM_HOME=/opt/yunzai/.pnpm
       - PNPM_STORE_PATH=/opt/yunzai/.pnpm/store
+      - QQ_ACCOUNT=1234567890
+      - QQ_PASSWORD=password123
     working_dir: /opt/yunzai
     volumes:
       - yunzai_data:/opt/yunzai

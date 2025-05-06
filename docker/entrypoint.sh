@@ -40,4 +40,30 @@ if [ ! -d "node_modules" ]; then
   pnpm install -P
 fi
 
+# 配置 QSign
+bash <(curl -sSLk Gitee.com/haanxuan/QSign/raw/main/X)
+
+# 设置登录信息
+if [ -n "$QQ_ACCOUNT" ] ; then
+  sed -i "s/qq: '.*'/qq: '$QQ_ACCOUNT'/" config/qq.yml
+fi
+if  [ -n "$QQ_PASSWORD" ]; then
+  sed -i "s/pwd: '.*'/pwd: '$QQ_PASSWORD'/" config/qq.yml
+fi
+
+# 设置 Redis
+if [ -n "$REDIS_HOST" && "$REDIS_PORT" ]; then
+  sed -i "s/host: '.*'/host: '$REDIS_HOST'/" config/redis.yml
+  sed -i "s/port: '.*'/port: '$REDIS_PORT'/" config/redis.yml
+fi
+if [ -n "$REDIS_USERNAME" ]; then
+  sed -i "s/username: '.*'/username: '$REDIS_USERNAME'/" config/redis.yml
+fi
+if [-n "$REDIS_PASSWORD" ]; then
+  sed -i "s/password: '.*'/password: '$REDIS_PASSWORD'/" config/redis.yml
+fi
+if [ -n "$REDIS_DB" ]; then
+  sed -i "s/db: '.*'/db: '$REDIS_DB'/" config/redis.yml
+fi
+
 exec "$@"
