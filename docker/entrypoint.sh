@@ -18,7 +18,7 @@ fi
 # 安装插件
 if [ -n "$PLUGIN_REPOS" ]; then
   mkdir -p plugins
-  echo "$PLUGIN_REPOS" | tr ',' '\n' | while read repo; do
+  echo "${PLUGIN_REPOS:-https://github.com/yoimiya-kokomi/miao-plugin.git}" | tr ',' '\n' | while read repo; do
     plugin_name=$(basename $repo .git)
     if [ ! -d "plugins/$plugin_name" ]; then
       git clone $repo "plugins/$plugin_name" \
