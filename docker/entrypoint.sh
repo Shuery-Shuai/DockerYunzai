@@ -9,14 +9,6 @@ fi
 # 启动 Xvfb 虚拟显示
 Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset >/dev/null 2>&1 &
 
-# 等待 Redis
-if [ -n "$REDIS_HOST" ]; then
-  until redis-cli -h $REDIS_HOST -p ${REDIS_PORT:-6379} ping >/dev/null 2>&1; do
-    echo "Waiting for Redis..."
-    sleep 1
-  done
-fi
-
 # 初始化 Yunzai
 if [ ! -d "/opt/yunzai/.git" ]; then
   git clone ${YUNZAI_REPO:-https://github.com/yoimiya-kokomi/Miao-Yunzai.git} . \
@@ -64,6 +56,14 @@ if [-n "$REDIS_PASSWORD" ]; then
 fi
 if [ -n "$REDIS_DB" ]; then
   sed -i "s/db: '.*'/db: '$REDIS_DB'/" config/redis.yml
+fi
+
+# 等待 Redis
+if [ -n "$REDIS_HOST" ]; then
+  until nc -zv $REDIS_HOST ${REDIS_PORT:-6379} >/dev/null 2>&1; do
+    echo "Waiting for Redis ready..."
+    sleep 1
+  done
 fi
 
 # 运行 Yunzai
