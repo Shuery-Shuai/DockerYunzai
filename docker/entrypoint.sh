@@ -28,9 +28,7 @@ if [ -n "$PLUGIN_REPOS" ]; then
 fi
 
 # 安装依赖
-if [ ! -d "node_modules" ]; then
-  pnpm install -P
-fi
+pnpm install -P
 
 # 配置 QSign
 bash <(curl -sSLk Gitee.com/haanxuan/QSign/raw/main/X)
