@@ -66,4 +66,7 @@ if [ -n "$REDIS_DB" ]; then
   sed -i "s/db: '.*'/db: '$REDIS_DB'/" config/redis.yml
 fi
 
+# 运行 Yunzai
+pnpm start
+
 exec "$@"
