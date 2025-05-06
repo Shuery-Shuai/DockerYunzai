@@ -5,9 +5,13 @@ LABEL description="Yunzai Bot Docker Image"
 ARG PNPM_VERSION=latest
 
 ENV TZ=Asia/Shanghai \
+  PNPM_HOME=/opt/yunzai/.pnpm \
+  PNPM_STORE_PATH=/opt/yunzai/.pnpm/store \
   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
   PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
-  DISPLAY=:99
+  PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage \
+  DISPLAY=:99 \
+  FFMPEG_PATH=/usr/bin/ffmpeg
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
   apt update && apt upgrade -y && \

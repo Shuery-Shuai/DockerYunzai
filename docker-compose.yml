@@ -14,13 +14,10 @@ services:
     environment:
       - YUNZAI_REPO=https://github.com/yoimiya-kokomi/Miao-Yunzai.git
       - PLUGIN_REPOS=https://github.com/yoimiya-kokomi/miao-plugin.git
-      - PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage
-      - FFMPEG_PATH=/usr/bin/ffmpeg
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=/run/secrets/redis_password
-      - PNPM_HOME=/opt/yunzai/.pnpm
-      - PNPM_STORE_PATH=/opt/yunzai/.pnpm/store
+      - REDIS_DB=0
       - QQ_ACCOUNT=1234567890
       - QQ_PASSWORD=password123
     working_dir: /opt/yunzai
