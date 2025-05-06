@@ -44,7 +44,7 @@ if  [ -n "$QQ_PASSWORD" ]; then
 fi
 
 # 设置 Redis
-if [ -n "$REDIS_HOST" && "$REDIS_PORT" ]; then
+if [ -n "${REDIS_HOST:-redis}" && "${REDIS_PORT:-6379}" ]; then
   sed -i "s/host: '.*'/host: '$REDIS_HOST'/" config/redis.yml
   sed -i "s/port: '.*'/port: '$REDIS_PORT'/" config/redis.yml
 fi
@@ -60,7 +60,7 @@ fi
 
 # 等待 Redis
 if [ -n "$REDIS_HOST" ]; then
-  until nc -zv $REDIS_HOST ${REDIS_PORT:-6379} >/dev/null 2>&1; do
+  until nc -zv ${REDIS_HOST:-redis} ${REDIS_PORT:-6379} >/dev/null 2>&1; do
     echo "Waiting for Redis ready..."
     sleep 1
   done
