@@ -119,7 +119,7 @@ docker run -d \
 
 ```bash
 # 拉取最新镜像
-docker pull ghcr.io/Shuery-Shuai/Yunzai:latest
+docker pull shuery/yunzai:latest
 
 # 重启容器
 docker-compose down && docker-compose up -d
