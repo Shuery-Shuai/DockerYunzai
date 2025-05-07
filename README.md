@@ -1,6 +1,6 @@
 # Yunzai-Bot Docker 容器化部署
 
-[![Docker Image CI](https://github.com/Shuery-Shuai/Yunzai/actions/workflows/docker.yml/badge.svg)](https://github.com/Shuery-Shuai/Yunzai/actions)
+[![Docker Publish](https://github.com/Shuery-Shuai/Yunzai/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/Shuery-Shuai/Yunzai/actions)
 [![GitHub Container Registry](https://img.shields.io/badge/Container%20Registry-GHCR-blue)](https://github.com/Shuery-Shuai/Yunzai/pkgs/container/Yunzai)
 
 专为 Yunzai-Bot 设计的 Docker 容器化解决方案，支持多架构部署，提供开箱即用的运行环境。
