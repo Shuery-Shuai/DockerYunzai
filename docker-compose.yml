@@ -14,6 +14,7 @@ services:
     environment:
       - YUNZAI_REPO=https://github.com/yoimiya-kokomi/Miao-Yunzai.git
       - PLUGIN_REPOS=https://github.com/yoimiya-kokomi/miao-plugin.git
+      - GITHUB_PROXY=
       - PNPM_REGISTRY=https://registry.npmjs.com
       - REDIS_HOST=redis
       - REDIS_PORT=6379

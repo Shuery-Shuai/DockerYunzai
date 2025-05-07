@@ -11,14 +11,20 @@ Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset >/dev/null 2
 
 # 初始化 Yunzai
 if [ ! -d "/app/yunzai/.git" ]; then
-  git clone ${YUNZAI_REPO:-https://github.com/yoimiya-kokomi/Miao-Yunzai.git} . \
-    --depth=1
+  repo=${YUNZAI_REPO:-https://github.com/yoimiya-kokomi/Miao-Yunzai.git}
+  if [ -n "${GITHUB_PROXY}" ] && echo $repo | grep -q 'github.com'; then
+    repo=$(echo $repo | sed "s#https://github.com/#https://${GITHUB_PROXY}/github.com/#")
+  fi
+  git clone $repo . --depth=1
 fi
 
 # 安装插件
 if [ -n "$PLUGIN_REPOS" ]; then
   mkdir -p plugins
   echo "${PLUGIN_REPOS:-https://github.com/yoimiya-kokomi/miao-plugin.git}" | tr ',' '\n' | while read repo; do
+    if [ -n "${GITHUB_PROXY}" ] && echo $repo | grep -q 'github.com'; then
+      repo=$(echo $repo | sed "s#https://github.com/#https://${GITHUB_PROXY}/github.com/#")
+    fi
     plugin_name=$(basename $repo .git)
     if [ ! -d "plugins/$plugin_name" ]; then
       git clone $repo "plugins/$plugin_name" \
