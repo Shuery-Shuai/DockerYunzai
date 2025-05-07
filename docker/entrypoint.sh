@@ -27,6 +27,13 @@ if [ -n "$PLUGIN_REPOS" ]; then
   done
 fi
 
+# 配置自定义 Registry
+if [ -n "${PNPM_REGISTRY:-https://registry.npmjs.com}" ]; then
+  echo "Setting PNPM Registry: ${PNPM_REGISTRY}"
+  pnpm config set registry ${PNPM_REGISTRY}
+  pnpm config set strict-ssl false
+fi
+
 # 安装依赖
 pnpm install -P
 
