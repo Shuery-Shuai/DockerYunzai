@@ -2,15 +2,15 @@
 set -e
 
 # 自动修复权限
-if [ "$(stat -c %U /opt/yunzai)" != "node" ]; then
-  chown -R node:node /opt/yunzai
+if [ "$(stat -c %U /app/yunzai)" != "node" ]; then
+  chown -R node:node /app/yunzai
 fi
 
 # 启动 Xvfb 虚拟显示
 Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset >/dev/null 2>&1 &
 
 # 初始化 Yunzai
-if [ ! -d "/opt/yunzai/.git" ]; then
+if [ ! -d "/app/yunzai/.git" ]; then
   git clone ${YUNZAI_REPO:-https://github.com/yoimiya-kokomi/Miao-Yunzai.git} . \
     --depth=1
 fi

@@ -20,9 +20,9 @@ services:
       - REDIS_DB=0
       - QQ_ACCOUNT=1234567890
       - QQ_PASSWORD=password123
-    working_dir: /opt/yunzai
+    working_dir: /app/yunzai
     volumes:
-      - yunzai_data:/opt/yunzai
+      - yunzai_data:/app/yunzai
     networks:
       - yunzai_network
     depends_on:

@@ -20,7 +20,7 @@
 ```bash
 docker run -d \
   --name yunzai-bot \
-  -v yunzai_data:/opt/yunzai \
+  -v yunzai_data:/app/yunzai \
   -e TZ=Asia/Shanghai \
   ghcr.io/Shuery-Shuai/DockerYunzai:latest
 ```
@@ -42,14 +42,14 @@ docker-compose up -d
 | 变量名            | 默认值                  | 说明          |
 | ----------------- | ----------------------- | ------------- |
 | `TZ`              | Asia/Shanghai           | 容器时区      |
-| `PNPM_HOME`       | /opt/yunzai/.pnpm       | pnpm 安装路径 |
-| `PNPM_STORE_PATH` | /opt/yunzai/.pnpm/store | 包存储路径    |
+| `PNPM_HOME`       | /app/yunzai/.pnpm       | pnpm 安装路径 |
+| `PNPM_STORE_PATH` | /app/yunzai/.pnpm/store | 包存储路径    |
 
 ### 数据卷
 
 | 卷名        | 容器路径    | 说明               |
 | ----------- | ----------- | ------------------ |
-| yunzai_data | /opt/yunzai | 存储所有配置和插件 |
+| yunzai_data | /app/yunzai | 存储所有配置和插件 |
 
 ## 🔄 更新管理
 

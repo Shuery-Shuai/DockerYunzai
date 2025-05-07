@@ -5,8 +5,8 @@ LABEL description="Yunzai Bot Docker Image"
 ARG PNPM_VERSION=latest
 
 ENV TZ=Asia/Shanghai \
-  PNPM_HOME=/opt/yunzai/.pnpm \
-  PNPM_STORE_PATH=/opt/yunzai/.pnpm/store \
+  PNPM_HOME=/app/yunzai/.pnpm \
+  PNPM_STORE_PATH=/app/yunzai/.pnpm/store \
   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
   PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
   PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage \
@@ -21,21 +21,21 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
   python3 python-is-python3 \
   netcat-openbsd git unzip curl bash && \
   apt-get clean && rm -rf /var/lib/apt/lists/* && \
-  curl -fsSL https://gist.githubusercontent.com/Shuery-Shuai/3fb6366e5f0e288168f1c1b60380b607/raw/fe77dedfaa844a1bb35101489620f0ab9b2f2b6b/option-1.install-sarasa-nerd-font.sh | sh -s -- --no-confirm --force
+  curl -fsSL https://gist.githubusercontent.com/Shuery-Shuai/3fb6366e5f0e288168f1c1b60380b607/raw/fe77dedfaa844a1bb35101489620f0ab9b2f2b6b/appion-1.install-sarasa-nerd-font.sh | sh -s -- --no-confirm --force
 
 RUN corepack enable && \
   corepack prepare pnpm@${PNPM_VERSION} --activate && \
-  mkdir -p /opt/yunzai && \
-  chown -R node:node /opt/yunzai && \
-  chmod 750 /opt/yunzai
+  mkdir -p /app/yunzai && \
+  chown -R node:node /app/yunzai && \
+  chmod 750 /app/yunzai
 
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 USER node
-WORKDIR /opt/yunzai
+WORKDIR /app/yunzai
 
-VOLUME ["/opt/yunzai"]
+VOLUME ["/app/yunzai"]
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["tail", "-f", "/dev/null"]
