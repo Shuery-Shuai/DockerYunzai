@@ -66,14 +66,15 @@ Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset >/dev/null 2
 clone_repo "${YUNZAI_REPO:-https://github.com/yoimiya-kokomi/Miao-Yunzai.git}" "$_yz_dir"
 
 # 2. 安装插件模块
-if [ -n "$PLUGIN_REPOS" ]; then
-  mkdir -p "$_yz_dir/plugins"
-  IFS=',' read -ra repo_list <<< "${PLUGIN_REPOS}"
-  for repo in "${repo_list[@]}"; do
-    plugin_name=$(basename "${repo}" .git)
-    clone_repo "$repo" "$_yz_dir/plugins/$plugin_name"
-  done
-fi
+mkdir -p "$_yz_dir/plugins"
+IFS=','
+set -f
+for repo in ${PLUGIN_REPOS:-https://github.com/yoimiya-kokomi/miao-plugin.git}; do
+  plugin_name=$(basename "${repo}" .git)
+  clone_repo "$repo" "$_yz_dir/plugins/$plugin_name"
+done
+set +f
+unset IFS
 
 #================================================================
 # 函数: setup_registry
