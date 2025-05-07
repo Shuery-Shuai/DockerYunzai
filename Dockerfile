@@ -34,5 +34,8 @@ RUN chmod +x /entrypoint.sh
 
 USER node
 WORKDIR /opt/yunzai
+
+VOLUME ["/opt/yunzai"]
+
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["tail", "-f", "/dev/null"]
