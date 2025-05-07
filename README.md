@@ -22,8 +22,9 @@
 ```bash
 # 配置运行变量
 QQ_ACCOUNT=1234567890
-QQ_PASSWORD=YourQQPassword
-REDIS_PASSWORD=YourWonderfulPassword!
+QQ_PASSWORD="YourQQPassword"
+REDIS_PASSWORD="YourWonderfulPassword!"
+REDIS_CONFIG=/data/redis.conf
 ```
 
 ```bash
@@ -36,7 +37,8 @@ docker run -d \
   --network yunzai_network \
   -e REDIS_PASSWORD=$REDIS_PASSWORD \
   -v redis_data:/data \
-  redis:alpine
+  redis:alpine \
+  redis-server $REDIS_CONFIG --requirepass $REDIS_PASSWORD --save 60 1
 
 # 启动 Yunzai 服务
 docker run -d \
@@ -46,7 +48,7 @@ docker run -d \
   -e QQ_ACCOUNT=$QQ_ACCOUNT \
   -e QQ_PASSWORD=$QQ_PASSWORD \
   -e REDIS_PASSWORD=$REDIS_PASSWORD \
-  ghcr.io/shuery-shuai/yunzai:latest
+  shuery/yunzai:latest
 ```
 
 ### 使用 docker-compose
@@ -62,8 +64,8 @@ docker run -d \
    ```bash
    # 配置修改变量
    QQ_ACCOUNT=1234567890
-   QQ_PASSWORD=YourQQPassword
-   REDIS_PASSWORD=YourWonderfulPassword!
+   QQ_PASSWORD="YourQQPassword"
+   REDIS_PASSWORD="YourWonderfulPassword!"
    ```
 
    ```bash
