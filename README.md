@@ -1,11 +1,11 @@
 # Yunzai-Bot Docker 容器化部署
 
-[![Docker Image CI](https://github.com/Shuery-Shuai/DockerYunzai/actions/workflows/docker.yml/badge.svg)](https://github.com/Shuery-Shuai/DockerYunzai/actions)
-[![GitHub Container Registry](https://img.shields.io/badge/Container%20Registry-GHCR-blue)](https://github.com/Shuery-Shuai/DockerYunzai/pkgs/container/DockerYunzai)
+[![Docker Image CI](https://github.com/Shuery-Shuai/Yunzai/actions/workflows/docker.yml/badge.svg)](https://github.com/Shuery-Shuai/Yunzai/actions)
+[![GitHub Container Registry](https://img.shields.io/badge/Container%20Registry-GHCR-blue)](https://github.com/Shuery-Shuai/Yunzai/pkgs/container/Yunzai)
 
 专为 Yunzai-Bot 设计的 Docker 容器化解决方案，支持多架构部署，提供开箱即用的运行环境。
 
-## ✨ 特性
+## ✨ 功能特性
 
 - ✅ 预配置 Node.js LTS 环境
 - 🚀 集成 pnpm 包管理工具
@@ -22,14 +22,14 @@ docker run -d \
   --name yunzai-bot \
   -v yunzai_data:/app/yunzai \
   -e TZ=Asia/Shanghai \
-  ghcr.io/Shuery-Shuai/DockerYunzai:latest
+  ghcr.io/Shuery-Shuai/Yunzai:latest
 ```
 
 ### 使用 docker-compose
 
 ```bash
 # 下载配置文件
-curl -O https://raw.githubusercontent.com/Shuery-Shuai/DockerYunzai/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/Shuery-Shuai/Yunzai/main/docker-compose.yml
 
 # 启动服务
 docker-compose up -d
@@ -55,7 +55,7 @@ docker-compose up -d
 
 ```bash
 # 拉取最新镜像
-docker pull ghcr.io/Shuery-Shuai/DockerYunzai:latest
+docker pull ghcr.io/Shuery-Shuai/Yunzai:latest
 
 # 重启容器
 docker-compose down && docker-compose up -d
