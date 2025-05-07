@@ -1,83 +1,83 @@
 #!/bin/sh
-set -e
+set -eo pipefail
 
-# 自动修复权限
-if [ "$(stat -c %U /app/yunzai)" != "node" ]; then
-  chown -R node:node /app/yunzai
+_yz_dir="/app/yunzai"
+if [ "$(stat -c %U "$_yz_dir")" != "node" ]; then
+  chown -R node:node "$_yz_dir"
 fi
 
-# 启动 Xvfb 虚拟显示
+clone_repo() {
+  local repo="$1"
+  local target="$2"
+  [ -d "$target/.git" ] && return 0
+  
+  if [ -n "${GITHUB_PROXY}" ] && [[ "$repo" == https://github.com/* ]]; then
+    repo="https://${GITHUB_PROXY}/github.com/${repo#https://github.com/}"
+  fi
+
+  git clone "$repo" "$target" --depth=1
+}
+
 Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset >/dev/null 2>&1 &
 
-# 初始化 Yunzai
-if [ ! -d "/app/yunzai/.git" ]; then
-  repo=${YUNZAI_REPO:-https://github.com/yoimiya-kokomi/Miao-Yunzai.git}
-  if [ -n "${GITHUB_PROXY}" ] && echo $repo | grep -q 'github.com'; then
-    repo=$(echo $repo | sed "s#https://github.com/#https://${GITHUB_PROXY}/github.com/#")
-  fi
-  git clone $repo . --depth=1
-fi
+clone_repo "${YUNZAI_REPO:-https://github.com/yoimiya-kokomi/Miao-Yunzai.git}" "$_yz_dir"
 
-# 安装插件
 if [ -n "$PLUGIN_REPOS" ]; then
-  mkdir -p plugins
-  echo "${PLUGIN_REPOS:-https://github.com/yoimiya-kokomi/miao-plugin.git}" | tr ',' '\n' | while read repo; do
-    if [ -n "${GITHUB_PROXY}" ] && echo $repo | grep -q 'github.com'; then
-      repo=$(echo $repo | sed "s#https://github.com/#https://${GITHUB_PROXY}/github.com/#")
-    fi
-    plugin_name=$(basename $repo .git)
-    if [ ! -d "plugins/$plugin_name" ]; then
-      git clone $repo "plugins/$plugin_name" \
-        --depth=1
-    fi
+  mkdir -p "$_yz_dir/plugins"
+  IFS=',' read -ra repo_list <<< "${PLUGIN_REPOS}"
+  for repo in "${repo_list[@]}"; do
+    plugin_name=$(basename "${repo}" .git)
+    clone_repo "$repo" "$_yz_dir/plugins/$plugin_name"
   done
 fi
 
-# 配置自定义 Registry
-if [ -n "${PNPM_REGISTRY:-https://registry.npmjs.com}" ]; then
-  echo "Setting PNPM Registry: ${PNPM_REGISTRY}"
-  pnpm config set registry ${PNPM_REGISTRY}
+setup_registry() {
+  [ -z "$PNPM_REGISTRY" ] && return 0
+  echo "Setting PNPM Registry: $PNPM_REGISTRY"
+  pnpm config set registry "$PNPM_REGISTRY"
   pnpm config set strict-ssl false
-fi
+}
+setup_registry
 
-# 安装依赖
 pnpm install -P
 
-# 配置 QSign
-bash <(curl -sSLk Gitee.com/haanxuan/QSign/raw/main/X)
+install_qsign() {
+  bash <(curl -fsSLk https://gitee.com/haanxuan/QSign/raw/main/X) || {
+    echo "QSign installation failed"
+    exit 1
+  }
+}
+install_qsign
 
-# 设置登录信息
-if [ -n "$QQ_ACCOUNT" ] ; then
-  sed -i "s/qq: '.*'/qq: '$QQ_ACCOUNT'/" config/qq.yml
-fi
-if  [ -n "$QQ_PASSWORD" ]; then
-  sed -i "s/pwd: '.*'/pwd: '$QQ_PASSWORD'/" config/qq.yml
-fi
+configure_yml() {
+  local file="$1"
+  local key="$2"
+  local value="$3"
+  [ -n "$value" ] && sed -i "s/^${key}:.*$/${key}: '${value}'/" "$file"
+}
 
-# 设置 Redis
-if [ -n "${REDIS_HOST:-redis}" && "${REDIS_PORT:-6379}" ]; then
-  sed -i "s/host: '.*'/host: '$REDIS_HOST'/" config/redis.yml
-  sed -i "s/port: '.*'/port: '$REDIS_PORT'/" config/redis.yml
-fi
-if [ -n "$REDIS_USERNAME" ]; then
-  sed -i "s/username: '.*'/username: '$REDIS_USERNAME'/" config/redis.yml
-fi
-if [-n "$REDIS_PASSWORD" ]; then
-  sed -i "s/password: '.*'/password: '$REDIS_PASSWORD'/" config/redis.yml
-fi
-if [ -n "$REDIS_DB" ]; then
-  sed -i "s/db: '.*'/db: '$REDIS_DB'/" config/redis.yml
-fi
+configure_yml "config/qq.yml" "qq" "$QQ_ACCOUNT"
+[ -n "$QQ_PASSWORD" ] && configure_yml "config/qq.yml" "pwd" "$QQ_PASSWORD"
 
-# 等待 Redis
-if [ -n "$REDIS_HOST" ]; then
-  until nc -zv ${REDIS_HOST:-redis} ${REDIS_PORT:-6379} >/dev/null 2>&1; do
+configure_yml "config/redis.yml" "host" "${REDIS_HOST:-redis}"
+configure_yml "config/redis.yml" "port" "${REDIS_PORT:-6379}"
+[ -n "$REDIS_USERNAME" ] && configure_yml "config/redis.yml" "username" "$REDIS_USERNAME"
+[ -n "$REDIS_PASSWORD" ] && configure_yml "config/redis.yml" "password" "$REDIS_PASSWORD"
+[ -n "$REDIS_DB" ] && configure_yml "config/redis.yml" "db" "$REDIS_DB"
+
+wait_for_redis() {
+  local timeout=30
+  until nc -zv "${REDIS_HOST:-redis}" "${REDIS_PORT:-6379}" >/dev/null 2>&1; do
+    [ $((timeout--)) -le 0 ] && {
+      echo "Redis connection timeout"
+      exit 1
+    }
     echo "Waiting for Redis ready..."
     sleep 1
   done
-fi
+}
+wait_for_redis
 
-# 运行 Yunzai
 pnpm start
 
 exec "$@"
