@@ -83,7 +83,7 @@ unset IFS
 #   - PNPM_REGISTRY: pnpm 镜像源地址
 #================================================================
 setup_registry() {
-  [ -z "$PNPM_REGISTRY" ] && return 0
+  [ -z "${PNPM_REGISTRY:-https://registry.npmjs.com}" ] && return 0
   echo "Setting PNPM Registry: $PNPM_REGISTRY"
   pnpm config set registry "$PNPM_REGISTRY"
   pnpm config set strict-ssl false
@@ -91,7 +91,10 @@ setup_registry() {
 setup_registry
 
 # 3. 安装 Node.js 依赖
-pnpm install -P
+pnpm install -P --registry "${PNPM_REGISTRY:-https://registry.npmjs.com}" --prefer-offline --no-cache || {
+  echo "Yunzai installation failed"
+  exit 1
+}
 
 #================================================================
 # 函数: install_qsign
