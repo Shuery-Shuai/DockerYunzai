@@ -117,12 +117,52 @@ docker run -d \
 
 ## 🔄 更新管理
 
+### Docker CLI
+
 ```bash
-# 拉取最新镜像
+# 1. 拉取最新镜像
 docker pull shuery/yunzai:latest
 
-# 重启容器
+# 2. 停止并删除旧容器
+docker stop yunzai && docker rm yunzai
+
+# 3. 重新创建容器（保留原有配置）
+docker run -d \
+  --name yunzai \
+  --network yunzai_network \
+  -v yunzai_data:/app/yunzai \
+  -e QQ_ACCOUNT=$QQ_ACCOUNT \
+  -e QQ_PASSWORD=$QQ_PASSWORD \
+  -e REDIS_PASSWORD=$REDIS_PASSWORD \
+  shuery/yunzai:latest
+
+# 4. 停止并删除旧 Redis 容器
+docker stop redis && docker rm redis
+
+# 5. 重新创建 Redis 容器
+docker run -d \
+  --name redis \
+  --network yunzai_network \
+  -e REDIS_PASSWORD=$REDIS_PASSWORD \
+  -v redis_data:/data \
+  redis:alpine \
+  redis-server --requirepass "$$REDIS_PASSWORD" --save 60 1
+
+# 6. 清理无用镜像
+docker image prune -f
+```
+
+### docker-compose
+
+```bash
+# 1. 拉取最新镜像
+docker pull shuery/yunzai:latest
+
+# 2. 重启容器
 docker-compose down && docker-compose up -d
+
+# 3. 清理无用镜像
+docker image prune -f
 ```
 
 ## 🛠️ 故障排查
