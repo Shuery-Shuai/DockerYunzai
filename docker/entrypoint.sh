@@ -91,7 +91,16 @@ setup_registry() {
 setup_registry
 
 # 3. 安装 Node.js 依赖
-pnpm install -P --registry "${PNPM_REGISTRY:-https://registry.npmjs.com}" --prefer-offline --no-cache || {
+ARCH=$(uname -m)
+case $ARCH in
+    x86_64) NODE_ARCH="x64" ;;
+    aarch64) NODE_ARCH="arm64" ;;
+    *) NODE_ARCH="$ARCH" ;;
+esac
+npm_config_build_from_source=false \
+npm_config_platform=linux \
+npm_config_arch=$NODE_ARCH \
+pnpm install -P --registry "${PNPM_REGISTRY:-https://registry.npmjs.com}" --prefer-offline --no-cache  --shamefully-hoist --ignore-scripts || {
   echo "Yunzai installation failed"
   exit 1
 }
