@@ -84,7 +84,7 @@
      --env-file $ENV_FILE \
      -v redis_data:/data \
      redis:alpine \
-     redis-server $REDIS_CONFIG --requirepass "$REDIS_PASSWORD" --save 60 1
+     redis-server $REDIS_CONFIG --requirepass "$REDIS_PASSWORD" --save 900 1 --save 300 10 --daemonize yes --ignore-warnings ARM64-COW-BUG
 
    # 启动 Yunzai 服务
    docker run -d \
