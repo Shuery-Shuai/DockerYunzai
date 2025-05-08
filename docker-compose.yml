@@ -11,17 +11,18 @@ services:
           memory: 2G
         reservations:
           memory: 512M
+    env_file: $ENV_FILE
     environment:
-      - YUNZAI_REPO=https://github.com/yoimiya-kokomi/Miao-Yunzai.git
-      - PLUGIN_REPOS=https://github.com/yoimiya-kokomi/miao-plugin.git
-      - GITHUB_PROXY=
-      - PNPM_REGISTRY=https://registry.npmjs.com
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=YourWonderfulPassword!
-      - REDIS_DB=0
-      - QQ_ACCOUNT=1234567890
-      - QQ_PASSWORD=password123
+      - YUNZAI_REPO
+      - PLUGIN_REPOS
+      - GITHUB_PROXY
+      - PNPM_REGISTRY
+      - REDIS_HOST
+      - REDIS_PORT
+      - REDIS_PASSWORD
+      - REDIS_DB
+      - QQ_ACCOUNT
+      - QQ_PASSWORD
     working_dir: /app/yunzai
     volumes:
       - yunzai_data:/app/yunzai
@@ -40,9 +41,11 @@ services:
         max-file: "3"
   redis:
     image: redis:alpine
+    env_file: $ENV_FILE
     environment:
-      REDIS_PASSWORD: YourWonderfulPassword!
-    command: redis-server --requirepass $$REDIS_PASSWORD --save 60 1
+      - REDIS_CONFIG
+      - REDIS_PASSWORD
+    command: redis-server $$REDIS_CONFIG --requirepass $$REDIS_PASSWORD --save 60 1
     volumes:
       - redis_data:/data
     networks:
