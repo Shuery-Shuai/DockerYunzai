@@ -29,8 +29,12 @@ RUN corepack enable && \
   chown -R node:node /app/yunzai && \
   chmod 750 /app/yunzai
 
-COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY ./docker/entrypoint.sh /entrypoint.sh
+RUN apt-get update && apt-get install -y dos2unix && \
+  dos2unix /entrypoint.sh && \
+  chmod 755 /entrypoint.sh && \
+  sed -i '1s/^/\n/' /entrypoint.sh && \
+  sed -i '1s/^/#!\/bin\/bash\n/' /entrypoint.sh
 
 USER node
 WORKDIR /app/yunzai
