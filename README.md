@@ -17,77 +17,134 @@
 
 ## 🚀 快速开始
 
-### 使用 Docker CLI
+### 创建环境变量文件
 
-```bash
-# 配置运行变量
-QQ_ACCOUNT=1234567890
-QQ_PASSWORD="YourQQPassword"
-REDIS_PASSWORD="YourWonderfulPassword!"
-REDIS_CONFIG=/data/redis.conf
-```
-
-```bash
-# 创建专用网络
-docker network create yunzai_network
-
-# 启动 Redis 服务
-docker run -d \
-  --name redis \
-  --network yunzai_network \
-  -e REDIS_PASSWORD=$REDIS_PASSWORD \
-  -v redis_data:/data \
-  redis:alpine \
-  redis-server $REDIS_CONFIG --requirepass $REDIS_PASSWORD --save 60 1
-
-# 启动 Yunzai 服务
-docker run -d \
-  --name yunzai \
-  --network yunzai_network \
-  -v yunzai_data:/app/yunzai \
-  -e QQ_ACCOUNT=$QQ_ACCOUNT \
-  -e QQ_PASSWORD=$QQ_PASSWORD \
-  -e REDIS_PASSWORD=$REDIS_PASSWORD \
-  shuery/yunzai:latest
-```
-
-### 使用 docker-compose
-
-1. 下载配置文件
+1. 配置运行变量
 
    ```bash
-   curl -O https://raw.githubusercontent.com/Shuery-Shuai/Yunzai/main/docker-compose.yml
-   ```
-
-2. 编辑配置文件
-
-   ```bash
-   # 配置修改变量
-   QQ_ACCOUNT=1234567890
-   QQ_PASSWORD="YourQQPassword"
+   ENV_FILE=$HOME/.config/docker/yunzai/.env
+   REDIS_CONFIG=/data/redis.conf
+   YUNZAI_REPO=https://github.com/yoimiya-kokomi/Miao-Yunzai.git
+   PLUGIN_REPOS=https://github.com/yoimiya-kokomi/miao-plugin.git
+   GITHUB_PROXY=
+   PNPM_REGISTRY=https://registry.npmjs.com
+   REDIS_HOST=redis
+   REDIS_PORT=6379
    REDIS_PASSWORD="YourWonderfulPassword!"
+   REDIS_DB=0
+   QQ_ACCOUNT=1234567890
+   QQ_PASSWORD="password123"
    ```
+
+2. 创建 .env 文件
 
    ```bash
-   # Linux/macOS
-   sed -i \
-     -e "s/QQ_ACCOUNT=.*/QQ_ACCOUNT=$QQ_ACCOUNT/" \
-     -e "s/QQ_PASSWORD=.*/QQ_PASSWORD='$QQ_PASSWORD'/" \
-     -e "s/REDIS_PASSWORD=.*/REDIS_PASSWORD=$REDIS_PASSWORD/" \
-     docker-compose.yml
+   mkdir -p $(dirname $ENV_FILE) && touch $ENV_FILE
+   cat <<EOF > $ENV_FILE
+   REDIS_CONFIG=$REDIS_CONFIG
+   YUNZAI_REPO=$YUNZAI_REPO
+   PLUGIN_REPOS=$PLUGIN_REPOS
+   GITHUB_PROXY=$GITHUB_PROXY
+   PNPM_REGISTRY=$PNPM_REGISTRY
+   REDIS_HOST=$REDIS_HOST
+   REDIS_PORT=$REDIS_PORT
+   REDIS_PASSWORD="$REDIS_PASSWORD"
+   REDIS_DB=$REDIS_DB
+   QQ_ACCOUNT=$QQ_ACCOUNT
+   QQ_PASSWORD="$QQ_PASSWORD"
+   EOF
    ```
 
-   ```powershell
-   # Windows (PowerShell)
-   (Get-Content docker-compose.yml) -replace 'QQ_ACCOUNT=.*', 'QQ_ACCOUNT=$QQ_ACCOUNT' `
-     -replace 'QQ_PASSWORD=.*', 'QQ_PASSWORD=$QQ_PASSWORD' `
-     -replace 'REDIS_PASSWORD=.*', 'REDIS_PASSWORD=$REDIS_PASSWORD' |
-     Set-Content docker-compose.yml
-   ```
+### 运行容器
 
-3. 启动完整服务栈
+#### 使用 Docker CLI
+
+1. 配置运行变量
 
    ```bash
+   LAUNCH_FILE=$HOME/.config/docker/yunzai/start.sh
+   ```
+
+2. 创建专用网络
+
+   ```bash
+   docker network create yunzai_network
+   ```
+
+3. 创建启动脚本
+
+   ```bash
+   mkdir -p $(dirname $LAUNCH_FILE) && touch $LAUNCH_FILE
+   cat <<EOF > $LAUNCH_FILE
+   #!/usr/bin/env bash
+   # 启动 Redis 服务
+   docker run -d \
+     --name redis \
+     --network yunzai_network \
+     --env-file $ENV_FILE \
+     -v redis_data:/data \
+     redis:alpine \
+     redis-server $REDIS_CONFIG --requirepass "$REDIS_PASSWORD" --save 60 1
+
+   # 启动 Yunzai 服务
+   docker run -d \
+     --name yunzai \
+     --network yunzai_network \
+     --env-file $ENV_FILE \
+     -v yunzai_data:/app/yunzai \
+     shuery/yunzai:latest
+   EOF
+   ```
+
+4. 赋予启动脚本执行权限
+
+   ```bash
+   chmod +x $LAUNCH_FILE
+   ```
+
+5. 启动服务
+
+   ```bash
+   $LAUNCH_FILE
+   ```
+
+#### 使用 docker-compose
+
+1. 配置运行变量
+
+   ```bash
+   COMPOSE_FILE=$HOME/.config/docker/yunzai/docker-compose.yml
+   ```
+
+2. 下载配置文件
+
+   ```bash
+   mkdir -p $(dirname $COMPOSE_FILE) && touch $COMPOSE_FILE
+   curl -fsSLk https://raw.githubusercontent.com/Shuery-Shuai/Yunzai/main/docker-compose.yml -O $COMPOSE_FILE
+   ```
+
+3. 更改配置文件
+
+   - Linux/macOS
+
+     ```bash
+     sed -i \
+       -e "s|env_file:.*|env_file: $ENV_FILE|" \
+       $COMPOSE_FILE
+     ```
+
+   - Windows (PowerShell)
+
+     ```powershell
+     (Get-Content $COMPOSE_FILE) `
+       -replace 'env_file:.*', 'env_file: $ENV_FILE' |
+       Set-Content $COMPOSE_FILE
+     ```
+
+4. 启动完整服务栈
+
+   ```bash
+   cd $(dirname $COMPOSE_FILE) && \
    docker-compose up -d
    ```
 
@@ -119,61 +176,70 @@ docker run -d \
 
 ### Docker CLI
 
-```bash
-# 1. 拉取最新镜像
-docker pull shuery/yunzai:latest
+1. 拉取最新镜像
 
-# 2. 停止并删除旧容器
-docker stop yunzai && docker rm yunzai
+   ```bash
+   docker pull shuery/yunzai:latest
+   ```
 
-# 3. 重新创建容器（保留原有配置）
-docker run -d \
-  --name yunzai \
-  --network yunzai_network \
-  -v yunzai_data:/app/yunzai \
-  -e QQ_ACCOUNT=$QQ_ACCOUNT \
-  -e QQ_PASSWORD=$QQ_PASSWORD \
-  -e REDIS_PASSWORD=$REDIS_PASSWORD \
-  shuery/yunzai:latest
+2. 停止并删除旧 Yunzai 容器
 
-# 4. 停止并删除旧 Redis 容器
-docker stop redis && docker rm redis
+   ```bash
+   docker stop yunzai && docker rm yunzai
+   ```
 
-# 5. 重新创建 Redis 容器
-docker run -d \
-  --name redis \
-  --network yunzai_network \
-  -e REDIS_PASSWORD=$REDIS_PASSWORD \
-  -v redis_data:/data \
-  redis:alpine \
-  redis-server --requirepass "$$REDIS_PASSWORD" --save 60 1
+3. 停止并删除旧 Redis 容器
 
-# 6. 清理无用镜像
-docker image prune -f
-```
+   ```bash
+   docker stop redis && docker rm redis
+   ```
+
+4. 重新创建容器（保留原有配置）
+
+   ```bash
+   $LAUNCH_FILE
+   ```
+
+5. 清理无用镜像
+
+   ```bash
+   docker image prune -f
+   ```
 
 ### docker-compose
 
-```bash
-# 1. 拉取最新镜像
-docker pull shuery/yunzai:latest
+1. 拉取最新镜像
 
-# 2. 重启容器
-docker-compose down && docker-compose up -d
+   ```bash
+   docker pull shuery/yunzai:latest
+   ```
 
-# 3. 清理无用镜像
-docker image prune -f
-```
+2. 重启容器
+
+   ```bash
+   cd $(dirname $COMPOSE_FILE) && \
+   docker-compose down && docker-compose up -d
+   ```
+
+3. 清理无用镜像
+
+   ```bash
+   docker image prune -f
+   ```
 
 ## 🛠️ 故障排查
 
-```bash
-# 查看实时日志
-docker-compose logs -f yunzai
+- 查看实时日志
 
-# 错误排查
-docker exec -it yunzai tail -n 100 /app/yunzai/logs/*.log
-```
+  ```bash
+  docker-compose logs -f yunzai
+  ```
+
+- 错误排查
+
+  ```bash
+  docker exec -it yunzai tail -n 100 /app/yunzai/logs/*.log
+  ```
 
 ## 🤝 参与贡献
 
