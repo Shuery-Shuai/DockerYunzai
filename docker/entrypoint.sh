@@ -257,7 +257,7 @@ configure_yml "${_yz_dir}/config/config/qq.yaml" "pwd" "${QQ_PASSWORD}"
 # 7. 配置 Redis
 redis_config="${_yz_dir}/config/config/redis.yaml"
 log "INFO" "Configuring Redis... ${EMO_DB}"
-configure_yml "$redis_config" "host" "${REDIS_HOST:-redis}"
+configure_yml "$redis_config" "host" "${REDIS_HOST:-127.0.0.1}"
 configure_yml "$redis_config" "port" "${REDIS_PORT:-6379}"
 configure_yml "$redis_config" "username" "${REDIS_USERNAME}"
 configure_yml "$redis_config" "password" "${REDIS_PASSWORD}"
@@ -286,7 +286,7 @@ wait_for_redis() {
   done
   log "INFO" "Redis connected ${EMO_OK}"
 }
-wait_for_redis
+# wait_for_redis
 
 # 8. 启动 Yunzai Bot
 log "INFO" "Starting Yunzai Bot... ${EMO_START}"

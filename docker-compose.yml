@@ -26,11 +26,6 @@ services:
     working_dir: /app/yunzai
     volumes:
       - yunzai_data:/app/yunzai
-    networks:
-      - yunzai_network
-    depends_on:
-      redis:
-        condition: service_healthy
     healthcheck:
       test: [ "CMD", "pnpm", "--version" ]
       interval: 1m
@@ -49,31 +44,7 @@ services:
       - development
     extends: yunzai
 
-  redis:
-    image: redis:alpine
-    env_file: $ENV_FILE
-    # environment:
-    #   - REDIS_CONFIG
-    #   - REDIS_PASSWORD
-    command: redis-server $REDIS_CONFIG --requirepass "$$REDIS_PASSWORD" --save 900 1 --save 300 10 --daemonize yes --ignore-warnings ARM64-COW-BUG
-    volumes:
-      - redis_data:/data
-    networks:
-      - yunzai_network
-    healthcheck:
-      test: [ "CMD", "redis-cli", "-a", "$$REDIS_PASSWORD", "ping" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
 volumes:
   yunzai_data:
     name: yunzai_data
     driver: local
-  redis_data:
-    name: redis_data
-    driver: local
-
-networks:
-  yunzai_network:
-    driver: bridge

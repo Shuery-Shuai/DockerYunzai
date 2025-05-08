@@ -77,15 +77,6 @@
    mkdir -p $(dirname $LAUNCH_FILE) && touch $LAUNCH_FILE
    cat <<EOF > $LAUNCH_FILE
    #!/usr/bin/env bash
-   # 启动 Redis 服务
-   docker run -d \
-     --name redis \
-     --network yunzai_network \
-     --env-file $ENV_FILE \
-     -v redis_data:/data \
-     redis:alpine \
-     redis-server $REDIS_CONFIG --requirepass "$REDIS_PASSWORD" --save 900 1 --save 300 10 --daemonize yes --ignore-warnings ARM64-COW-BUG
-
    # 启动 Yunzai 服务
    docker run -d \
      --name yunzai \
@@ -160,7 +151,7 @@
 | `PLUGIN_REPOS`   | <https://github.com/yoimiya-kokomi/miao-plugin.git> | <https://github.com/user/plugin1.git>,<https://gitee.com/user/plugin2.git> | 否   | 插件仓库列表（逗号分隔） |
 | `GITHUB_PROXY`   | 无                                                  | gh-proxy.com                                                               | 否   | GitHub 镜像代理地址      |
 | `PNPM_REGISTRY`  | <https://registry.npmjs.com>                        | <https://registry.npmmirror.com>                                           | 否   | pnpm 镜像源地址          |
-| `REDIS_HOST`     | redis                                               | 172.0.0.1                                                                  | 否   | Redis 服务地址           |
+| `REDIS_HOST`     | 127.0.0.1                                           | localhost                                                                  | 否   | Redis 服务地址           |
 | `REDIS_PORT`     | 6379                                                | 1234                                                                       | 否   | Redis 服务端口           |
 | `REDIS_PASSWORD` | 无                                                  | "YourWonderfulPassword!"                                                   | 否   | Redis 认证密码           |
 | `REDIS_DB`       | 0                                                   | 0                                                                          | 否   | Redis 数据库编号         |
@@ -172,7 +163,6 @@
 | 卷名        | 容器路径    | 说明                     |
 | ----------- | ----------- | ------------------------ |
 | yunzai_data | /app/yunzai | 存储机器人配置和插件数据 |
-| redis_data  | /data       | Redis 持久化数据存储     |
 
 ## 🔄 更新管理
 
@@ -184,25 +174,19 @@
    docker pull shuery/yunzai:latest
    ```
 
-2. 停止并删除旧 Yunzai 容器
+2. 停止并删除旧容器
 
    ```bash
    docker stop yunzai && docker rm yunzai
    ```
 
-3. 停止并删除旧 Redis 容器
-
-   ```bash
-   docker stop redis && docker rm redis
-   ```
-
-4. 重新创建容器（保留原有配置）
+3. 重新创建容器（保留原有配置）
 
    ```bash
    $LAUNCH_FILE
    ```
 
-5. 清理无用镜像
+4. 清理无用镜像
 
    ```bash
    docker image prune -f
