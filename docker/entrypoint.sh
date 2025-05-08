@@ -111,7 +111,7 @@ pnpm install -P --registry "${PNPM_REGISTRY:-https://registry.npmjs.com}" --pref
 # 注  意: 安装失败将终止容器启动
 #================================================================
 install_qsign() {
-  bash <(curl -fsSLk https://gitee.com/haanxuan/QSign/raw/main/X) || {
+  curl -fsSLk https://gitee.com/haanxuan/QSign/raw/main/X | bash - || {
     echo "QSign installation failed"
     exit 1
   }
