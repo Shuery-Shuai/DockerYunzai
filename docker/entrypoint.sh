@@ -161,14 +161,17 @@ configure_yml "$_yz_dir/config/config/redis.yaml" "port" "${REDIS_PORT:-6379}"
 #================================================================
 wait_for_redis() {
   local timeout=30
-  until nc -zv "${REDIS_HOST:-redis}" "${REDIS_PORT:-6379}" >/dev/null 2>&1; do
+  until echo "PING" | redis-cli -h "${REDIS_HOST:-redis}" -p "${REDIS_PORT:-6379}" -a "$REDIS_PASSWORD" 2>&1; do
     [ $((timeout--)) -le 0 ] && {
-      echo "Redis connection timeout"
+      echo "[ERROR] Redis connection timeout" >&2
       exit 1
     }
-    echo "Waiting for Redis ready..."
+    echo "[$(date '+%H:%M:%S')] Trying to connect Redis..." >&2
+    echo "Address: ${REDIS_HOST:-redis}:${REDIS_PORT:-6379}" >&2
+    echo "Failure code: $?" >&2
     sleep 1
   done
+  echo "✅ Redis connected successfully"
 }
 wait_for_redis
 
