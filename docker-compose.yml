@@ -26,6 +26,7 @@ services:
     working_dir: /app/yunzai
     volumes:
       - yunzai_data:/app/yunzai
+    ports: [ $EXPOSE_PORTS ]
     healthcheck:
       test: [ "CMD", "pnpm", "--version" ]
       interval: 1m

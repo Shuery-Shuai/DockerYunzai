@@ -23,17 +23,17 @@
 
    ```bash
    ENV_FILE=$HOME/.config/docker/yunzai/.env
-   REDIS_CONFIG=/data/redis.conf
+   EXPOSE_PORTS=
    YUNZAI_REPO=https://github.com/yoimiya-kokomi/Miao-Yunzai.git
-   PLUGIN_REPOS=https://github.com/yoimiya-kokomi/miao-plugin.git
+   PLUGIN_REPOS=https://github.com/yoimiya-kokomi/miao-plugin.git,https://github.com/guoba-yunzai/guoba-plugin.git
    GITHUB_PROXY=
    PNPM_REGISTRY=https://registry.npmjs.com
-   REDIS_HOST=redis
+   REDIS_HOST=127.0.0.1
    REDIS_PORT=6379
-   REDIS_PASSWORD=YourWonderfulPassword!
+   REDIS_PASSWORD=
    REDIS_DB=0
-   QQ_ACCOUNT=1234567890
-   QQ_PASSWORD=password123
+   QQ_ACCOUNT=
+   QQ_PASSWORD=
    ```
 
 2. 创建 .env 文件
@@ -41,7 +41,7 @@
    ```bash
    mkdir -p $(dirname $ENV_FILE) && touch $ENV_FILE
    cat <<EOF > $ENV_FILE
-   REDIS_CONFIG=$REDIS_CONFIG
+   EXPOSE_PORTS=$EXPOSE_PORTS
    YUNZAI_REPO=$YUNZAI_REPO
    PLUGIN_REPOS=$PLUGIN_REPOS
    GITHUB_PROXY=$GITHUB_PROXY
@@ -65,35 +65,38 @@
    LAUNCH_FILE=$HOME/.config/docker/yunzai/start.sh
    ```
 
-2. 创建专用网络
-
-   ```bash
-   docker network create yunzai_network
-   ```
-
-3. 创建启动脚本
+2. 创建启动脚本
 
    ```bash
    mkdir -p $(dirname $LAUNCH_FILE) && touch $LAUNCH_FILE
+
+   PORT_ARGS=""
+   if [ -n "$EXPOSE_PORTS" ]; then
+     IFS=',' read -ra PORTS <<< "$EXPOSE_PORTS"
+     for port in "${PORTS[@]}"; do
+       PORT_ARGS+="-p $port "
+     done
+   fi
+
    cat <<EOF > $LAUNCH_FILE
    #!/usr/bin/env bash
    # 启动 Yunzai 服务
-   docker run -d \
-     --name yunzai \
-     --network yunzai_network \
-     --env-file $ENV_FILE \
-     -v yunzai_data:/app/yunzai \
+   docker run -d \\
+     --name yunzai \\
+     --env-file $ENV_FILE \\
+     -v yunzai_data:/app/yunzai \\
+     ${PORT_ARGS}\\
      shuery/yunzai:latest
    EOF
    ```
 
-4. 赋予启动脚本执行权限
+3. 赋予启动脚本执行权限
 
    ```bash
    chmod +x $LAUNCH_FILE
    ```
 
-5. 启动服务
+4. 启动服务
 
    ```bash
    $LAUNCH_FILE
@@ -111,28 +114,25 @@
 
    ```bash
    mkdir -p $(dirname $COMPOSE_FILE) && touch $COMPOSE_FILE
-   curl -fsSLk https://raw.githubusercontent.com/Shuery-Shuai/Yunzai/main/docker-compose.yml -O $COMPOSE_FILE
+   curl -fsSLk "https://raw.githubusercontent.com/Shuery-Shuai/Yunzai/main/docker-compose.yml" --output $COMPOSE_FILE
    ```
 
 3. 更改配置文件
 
-   - Linux/macOS
+   ```bash
+   PORTS_BLOCK=""
+   if [ -n "$EXPOSE_PORTS" ]; then
+     IFS=',' read -ra PORTS <<< "$EXPOSE_PORTS"
+     for port in "${PORTS[@]}"; do
+       PORTS_BLOCK+="      - \"$port\"\n"
+     done
+   fi
 
-     ```bash
-     sed -i \
-       -e "s|env_file:.*|env_file: $ENV_FILE|" \
-       -e "s|\$REDIS_CONFIG|$REDIS_CONFIG|" \
-       $COMPOSE_FILE
-     ```
-
-   - Windows (PowerShell)
-
-     ```powershell
-     (Get-Content $COMPOSE_FILE) `
-       -replace 'env_file:.*', 'env_file: $ENV_FILE' `
-       -replace '\$REDIS_CONFIG', '$REDIS_CONFIG' |
-       Set-Content $COMPOSE_FILE
-     ```
+   sed -i \
+     -e "s|env_file:.*|env_file: $ENV_FILE|" \
+     -e "s|ports:.*|ports:\\n${PORTS_BLOCK}|" \
+     $COMPOSE_FILE
+   ```
 
 4. 启动完整服务栈
 
@@ -145,18 +145,19 @@
 
 ### 环境变量
 
-| 变量名           | 默认值                                              | 示例值                                                                     | 必需 | 说明                     |
-| ---------------- | --------------------------------------------------- | -------------------------------------------------------------------------- | ---- | ------------------------ |
-| `YUNZAI_REPO`    | <https://github.com/yoimiya-kokomi/Miao-Yunzai.git> | <https://github.com/Le-niao/Yunzai.git>                                    | 否   | 指定 Yunzai 本体仓库地址 |
-| `PLUGIN_REPOS`   | <https://github.com/yoimiya-kokomi/miao-plugin.git> | <https://github.com/user/plugin1.git>,<https://gitee.com/user/plugin2.git> | 否   | 插件仓库列表（逗号分隔） |
-| `GITHUB_PROXY`   | 无                                                  | gh-proxy.com                                                               | 否   | GitHub 镜像代理地址      |
-| `PNPM_REGISTRY`  | <https://registry.npmjs.com>                        | <https://registry.npmmirror.com>                                           | 否   | pnpm 镜像源地址          |
-| `REDIS_HOST`     | 127.0.0.1                                           | localhost                                                                  | 否   | Redis 服务地址           |
-| `REDIS_PORT`     | 6379                                                | 1234                                                                       | 否   | Redis 服务端口           |
-| `REDIS_PASSWORD` | 无                                                  | "YourWonderfulPassword!"                                                   | 否   | Redis 认证密码           |
-| `REDIS_DB`       | 0                                                   | 0                                                                          | 否   | Redis 数据库编号         |
-| `QQ_ACCOUNT`     | 无                                                  | 1234567890                                                                 | 是   | 机器人 QQ 号码           |
-| `QQ_PASSWORD`    | 无                                                  | "YourQQPassword"                                                           | 否   | 机器人 QQ 密码           |
+| 变量名           | 默认值                                                                                                 | 示例值                                                                     | 必需 | 说明                     |
+| ---------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- | ---- | ------------------------ |
+| `EXPOSE_PORTS`   | 无                                                                                                     | 6379:6379,50831:50831                                                      | 否   | 暴露端口列表（逗号分隔） |
+| `YUNZAI_REPO`    | <https://github.com/yoimiya-kokomi/Miao-Yunzai.git>                                                    | <https://github.com/Le-niao/Yunzai.git>                                    | 否   | 指定 Yunzai 本体仓库地址 |
+| `PLUGIN_REPOS`   | <https://github.com/yoimiya-kokomi/miao-plugin.git>,<https://github.com/guoba-yunzai/guoba-plugin.git> | <https://github.com/user/plugin1.git>,<https://gitee.com/user/plugin2.git> | 否   | 插件仓库列表（逗号分隔） |
+| `GITHUB_PROXY`   | 无                                                                                                     | gh-proxy.com                                                               | 否   | GitHub 镜像代理地址      |
+| `PNPM_REGISTRY`  | <https://registry.npmjs.com>                                                                           | <https://registry.npmmirror.com>                                           | 否   | pnpm 镜像源地址          |
+| `REDIS_HOST`     | 127.0.0.1                                                                                              | localhost                                                                  | 否   | Redis 服务地址           |
+| `REDIS_PORT`     | 6379                                                                                                   | 1234                                                                       | 否   | Redis 服务端口           |
+| `REDIS_PASSWORD` | 无                                                                                                     | YourWonderfulPassword!                                                     | 否   | Redis 认证密码           |
+| `REDIS_DB`       | 0                                                                                                      | 0                                                                          | 否   | Redis 数据库编号         |
+| `QQ_ACCOUNT`     | 无                                                                                                     | 1234567890                                                                 | 是   | 机器人 QQ 号码           |
+| `QQ_PASSWORD`    | 无                                                                                                     | YourQQPassword                                                             | 否   | 机器人 QQ 密码           |
 
 ### 数据卷
 
