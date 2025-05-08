@@ -199,7 +199,7 @@ npm_config_build_from_source=false \
   npm_config_platform=linux \
   npm_config_arch=$NODE_ARCH \
   pnpm install -P --registry "${PNPM_REGISTRY:-https://registry.npmjs.com}" \
-  --prefer-offline --no-cache --shamefully-hoist --ignore-scripts || {
+  --prefer-offline --no-cache --shamefully-hoist --force || {
   log "ERROR" "Installation failed! ${EMO_ERROR}"
   exit 1
 }
