@@ -155,7 +155,7 @@ mkdir -p "${_yz_dir}/plugins" || {
 
 IFS=','
 set -f
-for repo in ${PLUGIN_REPOS:-https://github.com/yoimiya-kokomi/miao-plugin.git}; do
+for repo in ${PLUGIN_REPOS:-https://github.com/yoimiya-kokomi/miao-plugin.git,https://github.com/guoba-yunzai/guoba-plugin.git}; do
   plugin_name=$(basename "${repo}" .git)
   log "INFO" "Installing plugin: ${plugin_name} ${EMO_PLUGIN}"
   clone_repo "${repo}" "${_yz_dir}/plugins/${plugin_name}"
@@ -170,7 +170,7 @@ unset IFS
 #   - PNPM_REGISTRY: pnpm 镜像源地址
 #================================================================
 setup_registry() {
-  [ -z "${PNPM_REGISTRY}" ] && return 0
+  [ -z "${PNPM_REGISTRY:-https://registry.npmjs.com}" ] && return 0
 
   log "INFO" "Configuring PNPM registry... ${EMO_CONFIG}"
   pnpm config set registry "${PNPM_REGISTRY}" || {
@@ -261,7 +261,7 @@ configure_yml "$redis_config" "host" "${REDIS_HOST:-127.0.0.1}"
 configure_yml "$redis_config" "port" "${REDIS_PORT:-6379}"
 configure_yml "$redis_config" "username" "${REDIS_USERNAME}"
 configure_yml "$redis_config" "password" "${REDIS_PASSWORD}"
-configure_yml "$redis_config" "db" "${REDIS_DB}"
+configure_yml "$redis_config" "db" "${REDIS_DB:-0}"
 
 #================================================================
 # 函数: wait_for_redis
