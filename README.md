@@ -145,7 +145,7 @@
 
    ```bash
    cd $(dirname $COMPOSE_FILE) && \
-   docker-compose up -d
+   DOCKER_BUILD_CONTEXT=null docker-compose up -d
    ```
 
 ## ⚙️ 配置指南
@@ -218,7 +218,7 @@
 
    ```bash
    cd $(dirname $COMPOSE_FILE) && \
-   docker-compose down && docker-compose up -d
+   docker-compose down && DOCKER_BUILD_CONTEXT=null docker-compose up -d
    ```
 
 3. 清理无用镜像

@@ -1,9 +1,9 @@
 services:
   yunzai:
-    build:
-      context: .
-      args:
-        PNPM_VERSION: latest
+    image: shuery/yunzai:latest
+    build: ${DOCKER_BUILD_CONTEXT:-.}
+    profiles:
+      - production
     deploy:
       resources:
         limits:
@@ -39,6 +39,16 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  yunzai-dev:
+    build:
+      context: .
+      args:
+        PNPM_VERSION: latest
+    profiles:
+      - development
+    extends: yunzai
+
   redis:
     image: redis:alpine
     env_file: $ENV_FILE
