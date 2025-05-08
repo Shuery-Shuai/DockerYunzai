@@ -245,11 +245,51 @@
 
 欢迎提交 Issue 和 PR！请遵循以下步骤：
 
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feat/xxx`)
-3. 提交修改 (`git commit -am 'Add some feature'`)
-4. 推送分支 (`git push origin feat/xxx`)
-5. 创建 Pull Request
+### 本地开发模式
+
+```bash
+# 强制重新构建镜像并启动服务
+ENV_FILE=.env.development DOCKER_BUILD_CONTEXT=. docker-compose --profile development up -d --build
+```
+
+### 多架构构建支持
+
+- 构建 ARM64 镜像
+
+  ```bash
+  docker buildx build --platform linux/arm64 -t shuery/yunzai:arm64 .
+  ```
+
+- 构建 AMD64 镜像
+
+  ```bash
+  docker buildx build --platform linux/amd64 -t shuery/yunzai:amd64 .
+  ```
+
+### 贡献代码流程
+
+1. 配置开发环境
+
+   ```bash
+   git clone https://github.com/your-fork/Yunzai.git
+   cd Yunzai
+   ```
+
+2. 测试容器构建
+
+   ```bash
+   docker-compose -f docker-compose.yml build --no-cache
+   ```
+
+3. 提交前检查
+
+   ```bash
+   # 运行完整测试流程
+   docker-compose --profile development up -d --build
+   docker-compose exec yunzai pnpm test
+   ```
+
+4. 推送变更到您的 fork 仓库后创建 PR
 
 ## 📄 开源协议
 
