@@ -105,6 +105,14 @@ pnpm install -P --registry "${PNPM_REGISTRY:-https://registry.npmjs.com}" --pref
   exit 1
 }
 
+echo "Copying default config files..."
+mkdir -p "$_yz_dir/config/config" && \
+cp -R -n "$_yz_dir/config/default_config/." "$_yz_dir/config/config/" && \
+chown -R node:node "$_yz_dir/config/config" || {
+  echo "Failed to copy default config files"
+  exit 1
+}
+
 #================================================================
 # 函数: install_qsign
 # 用  途: 安装 QSign 签名服务
@@ -134,15 +142,15 @@ configure_yml() {
 }
 
 # 4. 配置 QQ 账号信息
-configure_yml "config/qq.yml" "qq" "$QQ_ACCOUNT"
-[ -n "$QQ_PASSWORD" ] && configure_yml "config/qq.yml" "pwd" "$QQ_PASSWORD"
+configure_yml "$_yz_dir/config/config/qq.yaml" "qq" "$QQ_ACCOUNT"
+[ -n "$QQ_PASSWORD" ] && configure_yml "$_yz_dir/config/config/qq.yaml" "pwd" "$QQ_PASSWORD"
 
 # 5. 配置 Redis 连接
-configure_yml "config/redis.yml" "host" "${REDIS_HOST:-redis}"
-configure_yml "config/redis.yml" "port" "${REDIS_PORT:-6379}"
-[ -n "$REDIS_USERNAME" ] && configure_yml "config/redis.yml" "username" "$REDIS_USERNAME"
-[ -n "$REDIS_PASSWORD" ] && configure_yml "config/redis.yml" "password" "$REDIS_PASSWORD"
-[ -n "$REDIS_DB" ] && configure_yml "config/redis.yml" "db" "$REDIS_DB"
+configure_yml "$_yz_dir/config/config/redis.yaml" "host" "${REDIS_HOST:-redis}"
+configure_yml "$_yz_dir/config/config/redis.yaml" "port" "${REDIS_PORT:-6379}"
+[ -n "$REDIS_USERNAME" ] && configure_yml "$_yz_dir/config/config/redis.yaml" "username" "$REDIS_USERNAME"
+[ -n "$REDIS_PASSWORD" ] && configure_yml "$_yz_dir/config/config/redis.yaml" "password" "$REDIS_PASSWORD"
+[ -n "$REDIS_DB" ] && configure_yml "$_yz_dir/config/config/redis.yaml" "db" "$REDIS_DB"
 
 #================================================================
 # 函数: wait_for_redis
