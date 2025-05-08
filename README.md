@@ -130,6 +130,7 @@
      ```bash
      sed -i \
        -e "s|env_file:.*|env_file: $ENV_FILE|" \
+       -e "s|\$REDIS_CONFIG|$REDIS_CONFIG|" \
        $COMPOSE_FILE
      ```
 
@@ -137,7 +138,8 @@
 
      ```powershell
      (Get-Content $COMPOSE_FILE) `
-       -replace 'env_file:.*', 'env_file: $ENV_FILE' |
+       -replace 'env_file:.*', 'env_file: $ENV_FILE' `
+       -replace '\$REDIS_CONFIG', '$REDIS_CONFIG' |
        Set-Content $COMPOSE_FILE
      ```
 

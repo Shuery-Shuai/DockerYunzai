@@ -55,7 +55,7 @@ services:
     # environment:
     #   - REDIS_CONFIG
     #   - REDIS_PASSWORD
-    command: redis-server $$REDIS_CONFIG --requirepass $$REDIS_PASSWORD --save 60 1
+    command: redis-server $REDIS_CONFIG --requirepass "$$REDIS_PASSWORD" --save 60 1
     volumes:
       - redis_data:/data
     networks:
